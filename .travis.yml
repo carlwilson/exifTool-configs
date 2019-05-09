@@ -1,0 +1,29 @@
+dist: trusty
+sudo: required
+
+language: java
+jdk:
+  - oraclejdk8
+
+before_install:
+  - sudo apt-get update -y
+  - sudo apt-get install -y libimage-exiftool-perl unzip
+  - wget https://github.com/veraPDF/veraPDF-corpus/raw/staging/PDF_A-1b/6.7%20Metadata/6.7.2%20Properties/veraPDF%20test%20suite%206-7-2-t08-pass-a.pdf
+  - cp "veraPDF test suite 6-7-2-t08-pass-a.pdf" "veraPDF test suite 6-7-2-t08-pass-a_orig.pdf"
+  - wget http://software.verapdf.org/releases/verapdf-installer.zip
+  - unzip verapdf-installer.zip
+  - java -jar verapdf-greenfield-1.12.1/verapdf-izpack-installer-1.12.1.jar auto-install-vera-tmp.xml
+  - cp .ExifTool_config ~/
+
+script:
+  - sha256sum "veraPDF test suite 6-7-2-t08-pass-a_orig.pdf"
+  - /tmp/verapdf/verapdf "veraPDF test suite 6-7-2-t08-pass-a.pdf"
+  - exiftool -XMP-pdfaExtension:schemasProperty+="{name=EventType, valueType=Text, category=internal, description=Event Types according to LOC}" "veraPDF test suite 6-7-2-t08-pass-a.pdf"
+  - sha256sum "veraPDF test suite 6-7-2-t08-pass-a.pdf"
+  - /tmp/verapdf/verapdf "veraPDF test suite 6-7-2-t08-pass-a.pdf"
+  - exiftool -XMP-pdfaExtension:schemasProperty+="{name=EventDateTime, valueType=Date, category=internal, description=Date digitized}" "veraPDF test suite 6-7-2-t08-pass-a.pdf"
+  - sha256sum "veraPDF test suite 6-7-2-t08-pass-a.pdf"
+  - /tmp/verapdf/verapdf "veraPDF test suite 6-7-2-t08-pass-a.pdf"
+  - exiftool "-XMP-premis:EventDateTime<FileCreateDate" "-XMP-premis:EventType=migration" "veraPDF test suite 6-7-2-t08-pass-a.pdf"
+  - sha256sum "veraPDF test suite 6-7-2-t08-pass-a.pdf"
+  - /tmp/verapdf/verapdf "veraPDF test suite 6-7-2-t08-pass-a.pdf"
